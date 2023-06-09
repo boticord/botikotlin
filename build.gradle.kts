@@ -38,8 +38,6 @@ dependencies {
     // async kotlin omg wtf ?!?!??!?!
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_coro_core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coro_core")
-
-    // implementation("com.github.magm1go:botikotlin:1.0")
 }
 
 publishing {
@@ -47,7 +45,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "com.magm1go"
             artifactId = "botikotlin"
-            version = "1.0-SNAPSHOT"
+            version = version
 
             from(components["java"])
         }
