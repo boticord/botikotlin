@@ -13,12 +13,12 @@ import kotlinx.serialization.json.*
 import kotlinx.coroutines.*
 
 // TODO: Meili search support and autopost bot statistic
-class BotiCordClient(private val boticordToken: String? = null) {
+class BotiCordClient(private val boticordToken: String? = null, val devApiUrl: Boolean = true) {
     private val jsonBuilder = Json {
         this.isLenient = true
         this.ignoreUnknownKeys = true
     }
-    private val httpClient = HttpManager(this.boticordToken)
+    private val httpClient = HttpManager(this.boticordToken, devApiUrl)
 
     /* private fun getMeiliKey(): MeiliKeyBotiCord? {
         val response = httpClient.getRequest(Route.SEARCH_KEY.path)
