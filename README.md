@@ -1,3 +1,8 @@
+# Docs & examples
+[Documentation](https://magmigo2.gitbook.io/boticord-kotlin/)
+
+[Examples](https://github.com/MagM1go/botikotlin/tree/main/examples)
+
 # How to download it?
 
 Мне лень писать что-то на английском.
