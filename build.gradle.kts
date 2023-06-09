@@ -3,8 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("plugin.serialization") version "1.4.21"
     kotlin("jvm") version "1.7.20"
+    `maven-publish`
     application
 }
+
+apply(plugin = "kotlin")
+apply(plugin = "maven-publish")
 
 group = "com.magm1go"
 version = "1.0-SNAPSHOT"
@@ -15,6 +19,7 @@ val kotlin_coro_core = "1.7.1"
 
 repositories {
     mavenCentral()
+    maven(url = uri("https://jitpack.io"))
 }
 
 dependencies {
@@ -33,10 +38,20 @@ dependencies {
     // async kotlin omg wtf ?!?!??!?!
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_coro_core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coro_core")
+
+    implementation("com.github.magm1go:botikotlin:main-SNAPSHOT")
 }
 
-tasks.test {
-    useJUnitPlatform()
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.magm1go"
+            artifactId = "botikotlin"
+            version = "1.0"
+
+            from(components["java"])
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {
@@ -44,5 +59,5 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("BotiCordClient")
 }
