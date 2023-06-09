@@ -39,15 +39,15 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_coro_core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coro_core")
 
-    implementation("com.github.magm1go:botikotlin:main-SNAPSHOT")
+    // implementation("com.github.magm1go:botikotlin:1.0")
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.github.magm1go"
+            groupId = "com.magm1go"
             artifactId = "botikotlin"
-            version = "1.0"
+            version = "1.0-SNAPSHOT"
 
             from(components["java"])
         }
