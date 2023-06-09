@@ -2,14 +2,31 @@
 
 Gradle
 ```gradle
+repositories {
+    maven(url = uri("https://jitpack.io"))
+}
+
 dependencies {
-    implementation("url")
+    implementation("com.github.MagM1go:botikotlin:1.0-beta")
 }
 ```
 
 Maven:
 ```maven
-idk later
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.MagM1go</groupId>
+        <artifactId>botikotlin</artifactId>
+        <version>1.0-beta</version>
+    </dependency>
+</dependencies>
 ```
 # Example
 ```kotlin
