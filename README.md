@@ -1,3 +1,6 @@
+аххахахахахаххаха питон
+
+
 # Docs & examples
 [Documentation](https://magmigo2.gitbook.io/boticord-kotlin/)
 
