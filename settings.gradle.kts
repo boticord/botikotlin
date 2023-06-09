@@ -1,3 +1,3 @@
 
-rootProject.name = "bkt"
+rootProject.name = "botikotlin"
 
