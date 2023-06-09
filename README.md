@@ -1,5 +1,9 @@
 # How to download it?
 
+Мне лень писать что-то на английском.
+
+Or if you want to download older version, try to replace "1.0-beta (or whatever)" with a commit hash, like com.github.MagM1go:botikotlin:xxxxxx
+
 Gradle
 ```gradle
 repositories {
