@@ -14,7 +14,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.annotations.ApiStatus
 
-class HttpManager(val boticordToken: String?, val devApiUrl: Boolean) {
+class HttpManager(val boticordToken: String?, val apiUrl: String?) {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
@@ -25,7 +25,7 @@ class HttpManager(val boticordToken: String?, val devApiUrl: Boolean) {
         }
     }
 
-    private val url: String = if (devApiUrl) Route.DEV_API_URL.path else Route.API_URL.path
+    private val url: String = apiUrl ?: Route.API_URL.path
     private var webSocketResponse: String? = null
 
     suspend fun sendRequest(httpMethod: HttpMethod, data: (() -> JsonObject)?, route: String?, authorization: String?): HttpResponse {
