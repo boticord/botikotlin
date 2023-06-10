@@ -14,7 +14,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.annotations.ApiStatus
 
-class HttpManager(val boticordToken: String?, val apiUrl: String?) {
+class HttpManager(private val boticordToken: String?, apiUrl: String?) {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()

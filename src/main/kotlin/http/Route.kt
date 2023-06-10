@@ -6,7 +6,7 @@ enum class Route(val path: String) {
     GET_SERVER("/servers/%s"),
     GET_USER("/users/%s"),
     SEARCH_KEY("/search-key/"),
-    API_URL("https://api.arbuz.pro"),
-    WEBSOCKET_BASE_URL("gateway.arbuz.pro"),
+    API_URL("https://api.boticord.top"),
+    WEBSOCKET_BASE_URL("gateway.boticord.top"),
     WEBSOCKET_PATH("/websocket/")
 }
