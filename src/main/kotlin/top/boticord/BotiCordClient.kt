@@ -16,7 +16,7 @@ import top.boticord.data.users.UserProfile
 import top.boticord.http.Route
 
 // TODO: Meili search support and autopost bot statistic
-class BotiCordClient(private val boticordToken: String? = null) {
+class BotiCordClient(private val boticordToken: String) {
     private val jsonBuilder = Json {
         this.isLenient = true
         this.ignoreUnknownKeys = true
