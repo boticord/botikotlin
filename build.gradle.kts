@@ -10,7 +10,7 @@ plugins {
 apply(plugin = "kotlin")
 apply(plugin = "maven-publish")
 
-group = "com.magm1go"
+group = "top.boticord"
 version = "1.0-SNAPSHOT"
 
 val ktor_version = "2.3.1"
@@ -43,7 +43,7 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "com.magm1go"
+            groupId = "top.boticord"
             artifactId = "botikotlin"
             version = version
 
@@ -57,5 +57,5 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClass.set("BotiCordClient")
+    mainClass.set("top.boticord.BotiCordClient")
 }
