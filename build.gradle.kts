@@ -25,11 +25,16 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
-    // ktor
+    // ktor client
     implementation("io.ktor:ktor-client-websockets:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+
+    // ktor server
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
 
     // slf4j
     implementation("org.slf4j:slf4j-api:${slf4j_version}")
@@ -38,6 +43,8 @@ dependencies {
     // async kotlin omg wtf ?!?!??!?!
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_coro_core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coro_core")
+
+    implementation("io.netty:netty-all:4.1.90.Final")
 }
 
 publishing {

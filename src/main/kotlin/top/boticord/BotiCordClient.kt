@@ -2,6 +2,7 @@ package top.boticord
 
 import top.boticord.http.HttpManager
 import top.boticord.http.exceptions.HttpException
+import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -40,7 +41,7 @@ class BotiCordClient(private val boticordToken: String) {
             httpClient.sendRequest(HttpMethod.Get, null, Route.GET_BOT.path.format(botID.toString()), null)
         }
 
-        return@runBlocking handleErrors(apiResponse.await(), jsonBuilder)
+        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
     }
 
     fun updateBotStats(botID: Long, stats: BotStats): BotProfile? = runBlocking {
@@ -56,7 +57,7 @@ class BotiCordClient(private val boticordToken: String) {
             )
         }
 
-        return@runBlocking handleErrors(apiResponse.await(), jsonBuilder)
+        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
     }
 
     fun getUserProfile(userID: Long): UserProfile? = runBlocking {
@@ -64,7 +65,7 @@ class BotiCordClient(private val boticordToken: String) {
             httpClient.sendRequest(HttpMethod.Get, null, Route.GET_USER.path.format(userID), null)
         }
 
-        return@runBlocking handleErrors(apiResponse.await(), jsonBuilder)
+        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
     }
 
     fun getServer(serverID: Long): ResourceServer? = runBlocking {
@@ -72,17 +73,19 @@ class BotiCordClient(private val boticordToken: String) {
             httpClient.sendRequest(HttpMethod.Get, null, Route.GET_SERVER.path.format(serverID), null)
         }
 
-        return@runBlocking handleErrors(apiResponse.await(), jsonBuilder)
+        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
     }
 
-    private inline fun <reified T> handleErrors(apiResponse: HttpResponse, jsonBuilder: Json): T? = runBlocking {
+    private inline fun <reified T> parseJsonResponse(apiResponse: HttpResponse, jsonBuilder: Json): T? = runBlocking {
         val jsonResponse = jsonBuilder.parseToJsonElement(apiResponse.body())
             .jsonObject
 
         when (apiResponse.status.value) {
             200, 201 -> return@runBlocking jsonBuilder.decodeFromJsonElement(jsonResponse["result"]!!)
             else -> {
-                val errors = jsonResponse["errors"]?.jsonArray?.map { jsonBuilder.decodeFromString<InternalServerErrorData>(it.toString()) }
+                val errors = jsonResponse["errors"]?.jsonArray?.map {
+                    jsonBuilder.decodeFromString<InternalServerErrorData>(it.toString())
+                }
 
                 for (error in errors!!) {
                     throw HttpException("${error.code} (${error.code.code}) - ${error.message}")
