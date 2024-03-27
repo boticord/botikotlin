@@ -1,16 +1,12 @@
-аххахахахахаххаха питон
+# botikotlin
 
+![botikotlin-banner](https://media.discordapp.net/attachments/1052589926119641098/1222579608361107538/image.png?ex=6616bafd&is=660445fd&hm=c481c590aa338a19540b8bfc24d478b341d24dec1b4dcbf2802cffe1db3ace33&=&format=webp&quality=lossless&width=1366&height=663)
 
-# Docs & examples
-[Documentation](https://magmigo2.gitbook.io/boticord-kotlin/)
+## [Docs](https://magmigo2.gitbook.io/boticord-kotlin/) ㆍ [Examples](https://github.com/MagM1go/botikotlin/tree/main/examples)
 
-[Examples](https://github.com/MagM1go/botikotlin/tree/main/examples)
+# Get started
 
-# How to download it?
-
-Мне лень писать что-то на английском.
-
-Or if you want to download older version, try to replace "1.0-beta (or whatever)" with a commit hash, like com.github.MagM1go:botikotlin:xxxxxx
+If you want to download older version, try to replace "1.0-beta (or whatever)" with a commit hash, like com.github.MagM1go:botikotlin:xxxxxx
 
 Gradle
 ```gradle
@@ -51,5 +47,3 @@ fun main(args: Array<String>) {
     ) // And it returns BotProfile? object
 }
 ```
-
-ммм шоколадка...
