@@ -94,11 +94,3 @@ public fun <T> boticordBlocking(
 
 public fun boticord(token: String): BotiCordClient =
     BotiCordClient(token)
-
-public fun main(args: Array<String>) {
-    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU5ODM4NzcwNzMxMTU1NDU3MCIsInRva2VuIjoiSFNUK3pOQURPL0dtUDhSNHpHQklSeUU5Wm9kU2ZyQnV5eXJsZXZWakxmVlRaRDY0UUFmQzJvWGxZMzBaWk9hTSIsInJlZGlyZWN0Ijoi0YLRiyDQtNGD0LzQsNC7INGC0YPRgiDRh9GC0L4t0YLQviDQsdGD0LTQtdGCPyIsInBlcm1pc3Npb25zIjowLCJ0eXBlIjoiYm90IiwiaWF0IjoxNzI2MTQzOTYzfQ.1Qb-bzzsewKYAh9piCghargq50QqhtLTPlsruELDEWY"
-
-    println(boticordBlocking(token) {
-        fetch(551829966602502183, Type.Bot)
-    })
-}
