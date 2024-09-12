@@ -50,6 +50,8 @@ internal class HttpManager(private val boticordToken: String?) {
         }
 
         val response = client.request(url) {
+            this.contentType(ContentType.Application.Json)
+
             if (!boticordToken.isNullOrEmpty()) {
                 header("Authorization", boticordToken)
             }

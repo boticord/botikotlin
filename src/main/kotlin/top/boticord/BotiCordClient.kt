@@ -30,6 +30,25 @@ public class BotiCordClient(
         Type.Server -> fetchServer(id)
     }
 
+    public suspend fun update(
+        botId: Long,
+        memberCount: Int?,
+        shardCount: Int?,
+        guildCount: Int?
+    ): BotProfile {
+        val response = http.request(BotRoute.UPDATE_BOT_STATISTICS) {
+            params("id" to botId.toString())
+            body {
+                put("members", memberCount)
+                put("shards", shardCount)
+                put("servers", guildCount)
+            }
+        }
+        println(response.bodyAsText())
+
+        return decode<BotProfile>(response.bodyAsText())
+    }
+
     public fun setup(token: String) {
         this.boticordToken = token
     }
