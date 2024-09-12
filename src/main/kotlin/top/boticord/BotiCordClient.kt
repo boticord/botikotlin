@@ -44,7 +44,6 @@ public class BotiCordClient(
                 put("servers", guildCount)
             }
         }
-        println(response.bodyAsText())
 
         return decode<BotProfile>(response.bodyAsText())
     }
