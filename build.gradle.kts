@@ -1,8 +1,6 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("plugin.serialization") version "1.4.21"
-    kotlin("jvm") version "1.7.20"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.serialization)
     `maven-publish`
     application
 }
@@ -11,40 +9,17 @@ apply(plugin = "kotlin")
 apply(plugin = "maven-publish")
 
 group = "top.boticord"
-version = "1.0-SNAPSHOT"
-
-val ktor_version = "2.3.1"
-val slf4j_version = "2.0.7"
-val kotlin_coro_core = "1.7.1"
+version = "1.1"
 
 repositories {
     mavenCentral()
-    maven(url = uri("https://jitpack.io"))
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-
-    // ktor client
-    implementation("io.ktor:ktor-client-websockets:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-
-    // ktor server
-    implementation("io.ktor:ktor-server-core:$ktor_version")
-    implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
-
-    // slf4j
-    implementation("org.slf4j:slf4j-api:${slf4j_version}")
-    implementation("org.slf4j:slf4j-simple:${slf4j_version}")
-
-    // async kotlin omg wtf ?!?!??!?!
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_coro_core")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coro_core")
-
-    implementation("io.netty:netty-all:4.1.90.Final")
+    implementation(libs.bundles.ktor.client)
+    implementation(libs.bundles.kotlin.coroutines)
+    implementation(libs.bundles.kotlin.serialization)
 }
 
 publishing {
@@ -59,10 +34,12 @@ publishing {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
 application {
     mainClass.set("top.boticord.BotiCordClient")
+}
+
+kotlin {
+    explicitApi()
+
+    jvmToolchain(21)
 }

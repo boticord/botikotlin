@@ -1,98 +1,104 @@
 package top.boticord
 
-import top.boticord.http.HttpManager
-import top.boticord.http.exceptions.HttpException
-import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.statement.*
-import io.ktor.http.*
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
-import top.boticord.data.InternalServerErrorData
-import top.boticord.data.bots.BotProfile
-import top.boticord.data.bots.BotStats
-import top.boticord.data.servers.ResourceServer
-import top.boticord.data.users.UserProfile
-import top.boticord.http.Route
+import top.boticord.http.BotRoute
+import top.boticord.http.HttpManager
+import top.boticord.http.ServerRoute
+import top.boticord.http.UserRoute
+import top.boticord.models.Resource
+import top.boticord.models.bots.BotProfile
+import top.boticord.models.servers.ResourceServer
+import top.boticord.models.users.UserProfile
+import kotlin.jvm.Throws
 
-// TODO: Meili search support and autopost bot statistic
-class BotiCordClient(private val boticordToken: String) {
-    private val jsonBuilder = Json {
-        this.isLenient = true
-        this.ignoreUnknownKeys = true
+public class BotiCordClient(
+    private var boticordToken: String?,
+    private val json: Json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
     }
-    private val httpClient = HttpManager(this.boticordToken, Route.API_URL.path)
+) {
+    private val http = HttpManager(boticordToken)
 
-    /* private fun getMeiliKey(): MeiliKeyBotiCord? {
-        val response = httpClient.getRequest(Route.SEARCH_KEY.path)
-        return handleErrors(response, jsonBuilder)
+    @Throws(IllegalArgumentException::class)
+    public suspend fun fetch(id: Long, type: Type): Resource = when (type) {
+        Type.Bot -> fetchBot(id)
+        Type.User -> fetchUser(id)
+        Type.Server -> fetchServer(id)
     }
 
-    fun searchBots(): HttpResponse<String> {
-        val client = HttpClient.newBuilder().build()
-        val request = httpClient.createMeiliRequest(IRequestManager.Methods.GET, null, null, getMeiliKey()!!.key)
+    public fun setup(token: String) {
+        this.boticordToken = token
+    }
 
-        return client.send(request, BodyHandlers.ofString())
-    } */
-
-    fun getBotInfo(botID: Long): BotProfile? = runBlocking {
-        val apiResponse = async {
-            httpClient.sendRequest(HttpMethod.Get, null, Route.GET_BOT.path.format(botID.toString()), null)
+    private suspend fun fetchUser(id: Long): UserProfile {
+        val response = http.request(UserRoute.FETCH_USER) {
+            params("id" to id.toString())
         }
 
-        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
+        return decode<UserProfile>(response.bodyAsText())
     }
 
-    fun updateBotStats(botID: Long, stats: BotStats): BotProfile? = runBlocking {
-        val apiResponse = async {
-            httpClient.sendRequest(
-                HttpMethod.Post, {
-                    JsonObject(mapOf(
-                        "members" to JsonPrimitive(stats.members),
-                        "guilds" to JsonPrimitive(stats.guilds),
-                        "shards" to JsonPrimitive(stats.shards)
-                    ))
-                }, Route.POST_BOT_STATS.path.format(botID.toString()), boticordToken
-            )
+    private suspend fun fetchBot(id: Long): BotProfile {
+        val response = http.request(BotRoute.FETCH_BOT) {
+            params("id" to id.toString())
         }
 
-        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
+        return decode<BotProfile>(response.bodyAsText())
     }
 
-    fun getUserProfile(userID: Long): UserProfile? = runBlocking {
-        val apiResponse = async {
-            httpClient.sendRequest(HttpMethod.Get, null, Route.GET_USER.path.format(userID), null)
+    private suspend fun fetchServer(id: Long): ResourceServer {
+        val response = http.request(ServerRoute.FETCH_SERVER) {
+            params("id" to id.toString())
         }
 
-        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
+        return decode<ResourceServer>(response.bodyAsText())
     }
 
-    fun getServer(serverID: Long): ResourceServer? = runBlocking {
-        val apiResponse = async {
-            httpClient.sendRequest(HttpMethod.Get, null, Route.GET_SERVER.path.format(serverID), null)
-        }
+    @Throws(IllegalArgumentException::class)
+    private fun parseResultFromString(data: String) = json.decodeFromString<JsonObject>(data)
+            .jsonObject["result"]?.toString() ?: throw IllegalStateException("API returned null result.")
 
-        return@runBlocking parseJsonResponse(apiResponse.await(), jsonBuilder)
-    }
+    @Throws(
+        IllegalArgumentException::class,
+        SerializationException::class
+    )
+    private inline fun <reified T> decode(data: String) =
+        json.decodeFromString<T>(parseResultFromString(data))
+}
 
-    private inline fun <reified T> parseJsonResponse(apiResponse: HttpResponse, jsonBuilder: Json): T? = runBlocking {
-        val jsonResponse = jsonBuilder.parseToJsonElement(apiResponse.body())
-            .jsonObject
+@OptIn(DelicateCoroutinesApi::class)
+public fun <T> boticord(
+    scope: CoroutineScope = GlobalScope,
+    block: suspend BotiCordClient.() -> T
+): Deferred<T> = scope.async { BotiCordClient(null).block() }
 
-        when (apiResponse.status.value) {
-            200, 201 -> return@runBlocking jsonBuilder.decodeFromJsonElement(jsonResponse["result"]!!)
-            else -> {
-                val errors = jsonResponse["errors"]?.jsonArray?.map {
-                    jsonBuilder.decodeFromString<InternalServerErrorData>(it.toString())
-                }
+@OptIn(DelicateCoroutinesApi::class)
+public fun <T> boticord(
+    token: String,
+    scope: CoroutineScope = GlobalScope,
+    block: suspend BotiCordClient.() -> T
+): Deferred<T> = scope.async { BotiCordClient(token).block() }
 
-                for (error in errors!!) {
-                    throw HttpException("${error.code} (${error.code.code}) - ${error.message}")
-                }
-            }
-        }
+public fun <T> boticordBlocking(
+    block: suspend BotiCordClient.() -> T
+): T = runBlocking { BotiCordClient(null).block() }
 
-        return@runBlocking null
-    }
+public fun <T> boticordBlocking(
+    token: String,
+    block: suspend BotiCordClient.() -> T
+): T = runBlocking { BotiCordClient(token).block() }
+
+public fun boticord(token: String): BotiCordClient =
+    BotiCordClient(token)
+
+public fun main(args: Array<String>) {
+    val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU5ODM4NzcwNzMxMTU1NDU3MCIsInRva2VuIjoiSFNUK3pOQURPL0dtUDhSNHpHQklSeUU5Wm9kU2ZyQnV5eXJsZXZWakxmVlRaRDY0UUFmQzJvWGxZMzBaWk9hTSIsInJlZGlyZWN0Ijoi0YLRiyDQtNGD0LzQsNC7INGC0YPRgiDRh9GC0L4t0YLQviDQsdGD0LTQtdGCPyIsInBlcm1pc3Npb25zIjowLCJ0eXBlIjoiYm90IiwiaWF0IjoxNzI2MTQzOTYzfQ.1Qb-bzzsewKYAh9piCghargq50QqhtLTPlsruELDEWY"
+
+    println(boticordBlocking(token) {
+        fetch(551829966602502183, Type.Bot)
+    })
 }

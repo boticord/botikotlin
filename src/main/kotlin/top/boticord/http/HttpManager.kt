@@ -8,78 +8,70 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.websocket.*
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.annotations.ApiStatus
+import kotlinx.serialization.json.*
+import top.boticord.http.exceptions.BoticordException
+import top.boticord.models.ErrorDetail
+import kotlin.jvm.Throws
 
-class HttpManager(private val boticordToken: String?, apiUrl: String? = Route.API_URL.path) {
+internal class HttpManager(private val boticordToken: String?) {
+    companion object {
+        private const val INTERVAL = 30_000L
+    }
+
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
         }
 
         install(WebSockets) {
-            pingInterval = 20000
+            pingInterval = INTERVAL
         }
     }
 
-    private val url: String = apiUrl ?: Route.API_URL.path
-    private var webSocketResponse: String? = null
-
-    suspend fun sendRequest(httpMethod: HttpMethod, data: (() -> JsonObject)?, route: String?, authorization: String?): HttpResponse {
-        return client.request(url + route) {
-            method = httpMethod
-            headers {
-                append(HttpHeaders.ContentType, "application/json")
-            }
-
-            when (method) {
-                HttpMethod.Post -> {
-                    headers {
-                        append(HttpHeaders.Authorization, authorization!!)
-                    }
-                    contentType(ContentType.Application.Json)
-                    if (data != null) {
-                        setBody(data())
-                    }
-                }
-            }
-        }
+    private fun format(
+        template: String,
+        map: Map<String, String>
+    ): String = map.entries.fold(template) { acc, entry ->
+        acc.replace("{${entry.key}}", entry.value)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    fun startHttpServer() {
-        /* val job = GlobalScope.launch {
-            embeddedServer(Netty, port = 8080, module = )
-        } */
+    @Throws(BoticordException::class)
+    internal suspend fun request(
+        route: Route,
+        headers: HeadersBuilder.() -> Unit = {},
+        body: Body.() -> Unit = {}
+    ): HttpResponse {
+        val builtBody = Body().apply(body)
+
+        val url = if (builtBody.parameters.isNotEmpty()) {
+            format(route.url, builtBody.parameters)
+        } else {
+            route.url
+        }
+
+        val response = client.request(url) {
+            if (!boticordToken.isNullOrEmpty()) {
+                header("Authorization", boticordToken)
+            }
+
+            this.method = route.method
+            this.headers(headers)
+
+            val data = builtBody.asStringifiedJson()
+            if (!data.isNullOrEmpty()) setBody(data)
+        }
+
+        val jsonBody = Json.decodeFromString<JsonObject>(response.bodyAsText())
+        if (jsonBody.containsKey("errors"))
+            throw BoticordException(
+                "Boticord respond with error(s):\n" +
+                        parseApiErrors(jsonBody["errors"]!!.jsonArray).joinToString("\n") { "Boticord Message: ${it.code} - ${it.message}" }
+            )
+
+        return response
     }
 
-    @ApiStatus.Experimental
-    fun receiveWebsocketMessage(block: (message: String?) -> Unit) {
-        val websocketUrl = Route.WEBSOCKET_BASE_URL.path
-
-        // Hello u-u o/
-        val pingEvent = JsonObject(mapOf(
-            "event" to JsonPrimitive("ping")
-        ))
-
-        runBlocking {
-            client.webSocket(host = websocketUrl, path = Route.WEBSOCKET_PATH.path) {
-                send(pingEvent.toString())
-
-                val message = (incoming.receive() as? Frame.Text)?.readText()
-                block(message)
-            }
-        }
+    private fun parseApiErrors(errors: JsonArray): List<ErrorDetail> {
+        return errors.map { Json.decodeFromString<ErrorDetail>(it.toString()) }
     }
 }
