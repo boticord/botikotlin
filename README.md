@@ -38,12 +38,19 @@ Maven:
 ```
 # Example
 ```kotlin
-fun main(args: Array<String>) {
-    val boticordClient = BotiCordClient("TOKEN")
-    
-    boticordClient.updateBotStats(
-        100000000000000, 
-        BotStats(members = 100000)
-    ) // And it returns BotProfile? object
+val token = "YOUR_TOKEN"
+val response = boticord(token) {
+    update(BOT_ID, memberCount?, shardCount?, guildCount?)
 }
+
+logger.info(response)
+```
+
+```kotlin
+val token = "YOUR_TOKEN"
+val api = boticord(token)
+
+val response = api.fetch(USER_ID, Type.USER)
+
+logger.info(response)
 ```
