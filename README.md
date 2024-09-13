@@ -6,16 +6,16 @@
 
 # Get started
 
-If you want to download older version, try to replace "1.0-beta (or whatever)" with a commit hash, like com.github.MagM1go:botikotlin:xxxxxx
+If you want to download older version, try to replace "1.0-beta (or whatever)" with a commit hash, like com.github.boticord:botikotlin:COMMIT-HASH
 
 Gradle
 ```gradle
 repositories {
-    maven(url = uri("https://jitpack.io"))
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation("com.github.MagM1go:botikotlin:1.0-beta")
+    implementation("com.github.boticord:botikotlin:main-SNAPSHOT")
 }
 ```
 
@@ -30,9 +30,9 @@ Maven:
 
 <dependencies>
     <dependency>
-        <groupId>com.github.MagM1go</groupId>
+        <groupId>com.github.boticord</groupId>
         <artifactId>botikotlin</artifactId>
-        <version>1.0-beta</version>
+        <version>main-SNAPSHOT</version>
     </dependency>
 </dependencies>
 ```
