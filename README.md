@@ -6,10 +6,13 @@
 
 # Get started
 
-If you want to download older version, try to replace "1.0-beta (or whatever)" with a commit hash, like com.github.boticord:botikotlin:COMMIT-HASH
+> [!NOTE]\
+> If you want to use a specific version of a library, replace the version number with a commit hash.  
+> For example, instead of using `1.0-beta` (or another version), use `com.github.boticord:botikotlin:COMMIT-HASH`.
+
 
 Gradle
-```gradle
+```groovy
 repositories {
     maven("https://jitpack.io")
 }
@@ -20,7 +23,7 @@ dependencies {
 ```
 
 Maven:
-```maven
+```xml
 <repositories>
     <repository>
         <id>jitpack.io</id>
