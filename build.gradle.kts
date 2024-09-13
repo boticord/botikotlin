@@ -5,9 +5,6 @@ plugins {
     application
 }
 
-apply(plugin = "kotlin")
-apply(plugin = "maven-publish")
-
 group = "top.boticord"
 version = "1.1"
 
