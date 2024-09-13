@@ -5,8 +5,10 @@ plugins {
     application
 }
 
+apply(plugin = "maven-publish")
+
 group = "top.boticord"
-version = "1.1"
+version = "2.1.1"
 
 repositories {
     mavenCentral()
