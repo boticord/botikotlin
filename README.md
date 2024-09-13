@@ -37,8 +37,8 @@ Maven:
 </dependencies>
 ```
 # Example
+**Update bot statistics**
 ```kotlin
-val token = "YOUR_TOKEN"
 val response = boticord(token) {
     update(BOT_ID, memberCount?, shardCount?, guildCount?)
 }
@@ -46,11 +46,26 @@ val response = boticord(token) {
 logger.info(response)
 ```
 
+**Get user/bot**
 ```kotlin
-val token = "YOUR_TOKEN"
 val api = boticord(token)
-
-val response = api.fetch(USER_ID, Type.USER)
+val response = api.fetch(USER_ID, Type.User/Bot)
 
 logger.info(response)
+
+// or
+val response = boticord(token) {
+    fetch(USER_ID, Type.User/Bot)
+}
+
+logger.info(response)
+```
+
+**Listen to boticord notifications**
+```kotlin
+boticord(token) {
+    notifications { event ->
+        println("I received event!!!!! $event")
+    }
+}
 ```
