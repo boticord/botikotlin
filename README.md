@@ -68,7 +68,7 @@ logger.info(response)
 ```kotlin
 boticord(token) {
     notifications { event ->
-        println("I received event!!!!! $event")
+        logger.info("I received event!!!!! $event")
     }
 }
 ```
