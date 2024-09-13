@@ -2,17 +2,16 @@ package top.boticord.http
 
 import io.ktor.http.*
 
-internal class Route(val method: HttpMethod, path: String) {
-    private val version: Int = 3
-    private val base: String = "https://api.boticord.top/v$version"
+internal const val BASE: String = "https://api.boticord.top/v3"
+internal const val MEILI_BASE: String = "https://api.boticord.top/search"
 
+internal class Route(val method: HttpMethod, path: String, base: String = BASE) {
     internal val url = "$base$path"
 }
 
 internal object WebsocketRoute {
-    private const val PREFIX: String = "wss://"
-
-    const val WEBSOCKET_URL: String = "gateway.boticord.top/websocket"
+    const val WEBSOCKET_HOST: String = "gateway.boticord.top"
+    const val WEBSOCKET_PATH: String = "/websocket/"
 }
 
 internal object BotRoute {

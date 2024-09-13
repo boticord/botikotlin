@@ -3,25 +3,32 @@ package top.boticord
 import io.ktor.client.statement.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.*
-import top.boticord.http.BotRoute
-import top.boticord.http.HttpManager
-import top.boticord.http.ServerRoute
-import top.boticord.http.UserRoute
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
+import top.boticord.http.*
 import top.boticord.models.Resource
 import top.boticord.models.bots.BotProfile
 import top.boticord.models.servers.ResourceServer
 import top.boticord.models.users.UserProfile
-import kotlin.jvm.Throws
+import top.boticord.models.websockets.EventFullData
 
 public class BotiCordClient(
     private var boticordToken: String?,
     private val json: Json = Json {
         ignoreUnknownKeys = true
         isLenient = true
-    }
+    },
+    logging: Boolean = true
 ) {
-    private val http = HttpManager(boticordToken)
+    private val http: HttpManager = HttpManager(boticordToken)
+    private val websockets: Notifications = Notifications(
+        logging,
+        boticordToken ?: "",
+        http,
+        json
+    )
 
     @Throws(IllegalArgumentException::class)
     public suspend fun fetch(id: Long, type: Type): Resource = when (type) {
@@ -76,9 +83,13 @@ public class BotiCordClient(
         return decode<ResourceServer>(response.bodyAsText())
     }
 
+    private suspend fun fetchSearchKey(): String =
+        parseResultFromString(http.request(SearchRoute.SEARCH_KEY).bodyAsText(), "key")
+
     @Throws(IllegalArgumentException::class)
-    private fun parseResultFromString(data: String) = json.decodeFromString<JsonObject>(data)
-            .jsonObject["result"]?.toString() ?: throw IllegalStateException("API returned null result.")
+    private fun parseResultFromString(data: String, key: String = "result"): String =
+        json.decodeFromString<JsonObject>(data)
+            .jsonObject[key]?.toString() ?: throw IllegalStateException("API returned null result.")
 
     @Throws(
         IllegalArgumentException::class,
@@ -86,6 +97,8 @@ public class BotiCordClient(
     )
     private inline fun <reified T> decode(data: String) =
         json.decodeFromString<T>(parseResultFromString(data))
+
+    public suspend fun notifications(block: (EventFullData) -> Unit): Unit = websockets.listen { block(it) }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
