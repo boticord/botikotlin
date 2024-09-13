@@ -16,6 +16,12 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
 
+# search
+meili-search = { module = "com.meilisearch.sdk:meilisearch-java", version = "0.14.0" }
+
+# SL4J
+logging = { module = "org.slf4j:slf4j-simple", version = "2.1.0-alpha1"}
+
 [bundles]
 ktor-client = [
     "ktor-client-core",

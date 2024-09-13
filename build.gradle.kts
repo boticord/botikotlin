@@ -20,6 +20,9 @@ dependencies {
     implementation(libs.bundles.ktor.client)
     implementation(libs.bundles.kotlin.coroutines)
     implementation(libs.bundles.kotlin.serialization)
+
+    implementation(libs.meili.search)
+    implementation(libs.logging)
 }
 
 publishing {
