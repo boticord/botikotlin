@@ -3,5 +3,3 @@ jdk:
 before_install:
   - sdk install java 21.0.2-open
   - sdk use java 21.0.2-open
-install:
-  - ./gradlew clean -Pgroup=com.github.boticord -Pversion=2.1.1.2 -xtest assemble publishToMavenLocal
