@@ -5,8 +5,6 @@ plugins {
     application
 }
 
-apply(plugin = "maven-publish")
-
 group = "top.boticord"
 version = "2.1.1"
 
@@ -31,7 +29,7 @@ publishing {
             artifactId = "botikotlin"
             version = version
 
-            from(components["java"])
+            from(components["kotlin"])
         }
     }
 }
@@ -44,4 +42,11 @@ kotlin {
     explicitApi()
 
     jvmToolchain(21)
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
 }
