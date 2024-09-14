@@ -47,7 +47,7 @@ Maven:
 ```kotlin
 val response = boticord(token) {
     update(BOT_ID, memberCount?, shardCount?, guildCount?)
-}
+}.await()
 
 logger.info(response)
 ```
@@ -55,14 +55,14 @@ logger.info(response)
 **Get user/bot**
 ```kotlin
 val api = boticord(token)
-val response = api.fetch(USER_ID, Type.User/Bot)
+val response = api.fetch(USER_ID, Type.User/Bot).await()
 
 logger.info(response)
 
 // or
 val response = boticord(token) {
     fetch(USER_ID, Type.User/Bot)
-}
+}.await()
 
 logger.info(response)
 ```
@@ -73,5 +73,5 @@ boticord(token) {
     notifications { event ->
         logger.info("I received event!!!!! $event")
     }
-}
+}.await()
 ```
