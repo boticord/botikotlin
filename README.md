@@ -2,7 +2,8 @@
 
 ![botikotlin-banner](assets/banner.png)
 
-### [Documentation](https://magmigo2.gitbook.io/boticord-kotlin/) (outdated)
+### [Documentation](https://botikotlin.magmigo.ru)
+### [Boticord Page](https://docs.boticord.top/sdk/botikotlin/)
 
 [![](https://jitpack.io/v/boticord/botikotlin.svg)](https://jitpack.io/#boticord/botikotlin)
 
