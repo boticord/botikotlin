@@ -4,6 +4,8 @@
 
 ### [Documentation](https://magmigo2.gitbook.io/boticord-kotlin/) (outdated)
 
+[![](https://jitpack.io/v/boticord/botikotlin.svg)](https://jitpack.io/#boticord/botikotlin)
+
 # Get started
 
 > [!NOTE]\
