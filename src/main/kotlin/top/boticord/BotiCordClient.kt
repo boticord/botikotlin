@@ -25,7 +25,7 @@ public class BotiCordClient(
     private val http: HttpManager = HttpManager(boticordToken)
     private val websockets: Notifications = Notifications(
         logging,
-        boticordToken ?: "",
+        boticordToken,
         http,
         json
     )
@@ -43,6 +43,9 @@ public class BotiCordClient(
         shardCount: Int?,
         guildCount: Int?
     ): BotProfile {
+        if (boticordToken.isNullOrEmpty())
+            throw IllegalStateException("Can't update bot statistics while boticord token is null")
+
         val response = http.request(BotRoute.UPDATE_BOT_STATISTICS) {
             params("id" to botId.toString())
             body {
@@ -98,7 +101,13 @@ public class BotiCordClient(
     private inline fun <reified T> decode(data: String) =
         json.decodeFromString<T>(parseResultFromString(data))
 
-    public suspend fun notifications(block: (EventFullData) -> Unit): Unit = websockets.listen { block(it) }
+    @Throws(IllegalStateException::class)
+    public suspend fun notifications(block: (EventFullData) -> Unit) {
+        if (boticordToken.isNullOrEmpty())
+            throw IllegalStateException("Notifications can't be listened if boticord token is null")
+
+        websockets.listen { block(it) }
+    }
 }
 
 @OptIn(DelicateCoroutinesApi::class)

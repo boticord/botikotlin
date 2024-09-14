@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.seconds
 
 internal class Notifications(
     private val loggingEnabled: Boolean,
-    private val token: String,
+    private val token: String?,
     private val http: HttpManager,
     private val json: Json
 ) {
@@ -19,7 +19,7 @@ internal class Notifications(
     private val payload: Payload = Payload(token)
 
     internal suspend fun listen(block: (EventFullData) -> Unit) {
-        if (token.isEmpty()) return
+        if (token.isNullOrEmpty()) return
 
         http.websocket(HttpMethod.Get, WebsocketRoute.WEBSOCKET_HOST, WebsocketRoute.WEBSOCKET_PATH) {
             send(payload.helloPayload.toString())
@@ -52,7 +52,7 @@ internal class Notifications(
         }
     }
 
-    private class Payload(val token: String) {
+    private class Payload(val token: String?) {
         private val emptyObject = buildJsonObject {}
         private val emptyData = buildJsonObject { put("data", emptyObject) }
 
@@ -70,7 +70,7 @@ internal class Notifications(
     }
 
     init {
-        if (token.isEmpty()) {
+        if (token.isNullOrEmpty()) {
             logger.warn("Boticord token not provided. Notification service will be ignored by SDK.")
         }
     }
