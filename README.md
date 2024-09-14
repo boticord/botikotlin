@@ -1,6 +1,6 @@
-# botikotlin
+# Boticord Kotlin API wrapper.
 
-![botikotlin-banner](https://media.discordapp.net/attachments/1052589926119641098/1222579608361107538/image.png?ex=6616bafd&is=660445fd&hm=c481c590aa338a19540b8bfc24d478b341d24dec1b4dcbf2802cffe1db3ace33&=&format=webp&quality=lossless&width=1366&height=663)
+![botikotlin-banner](assets/banner.png)
 
 ### [Documentation](https://magmigo2.gitbook.io/boticord-kotlin/) (outdated)
 
