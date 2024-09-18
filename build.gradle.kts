@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "top.boticord"
-version = "2.1.1.2"
+version = "2.1.2.5"
 
 repositories {
     mavenCentral()
