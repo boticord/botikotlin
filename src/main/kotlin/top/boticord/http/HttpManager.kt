@@ -66,8 +66,11 @@ internal class HttpManager(private val boticordToken: String?) {
             if (!data.isNullOrEmpty()) setBody(data)
         }
 
-        if (response.contentType() != ContentType.Application.Json)
-            throw HttpException("Boticord respond with invalid content type (${response.contentType()})")
+        response.contentType()?.let {
+            if (!it.match(ContentType.Application.Json)) {
+                throw HttpException("Boticord respond with invalid content type (${response.contentType()})")
+            }
+        }
 
         val jsonBody = Json.decodeFromString<JsonObject>(response.bodyAsText())
         if (jsonBody.containsKey("errors"))
