@@ -3,16 +3,15 @@ package top.boticord
 import io.ktor.client.statement.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.*
 import top.boticord.http.*
 import top.boticord.models.Resource
 import top.boticord.models.bots.BotProfile
 import top.boticord.models.servers.ResourceServer
 import top.boticord.models.users.UserProfile
 import top.boticord.models.websockets.EventFullData
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 public class BotiCordClient(
     private var boticordToken: String?,
@@ -29,6 +28,16 @@ public class BotiCordClient(
         http,
         json
     )
+
+    // хз пусть будет)
+    @OptIn(ExperimentalEncodingApi::class)
+    internal fun decodeId(): String? {
+        val toParts = boticordToken?.split(".")
+        val payload = toParts?.get(1)?.toByteArray() ?: return null
+        val payloadJson = Json.decodeFromString<JsonObject>(String(Base64.decode(payload)))
+
+        return payloadJson["id"]?.jsonPrimitive?.content
+    }
 
     @Throws(IllegalArgumentException::class)
     public suspend fun fetch(id: Long, type: Type): Resource = when (type) {
@@ -107,6 +116,35 @@ public class BotiCordClient(
             throw IllegalStateException("Notifications can't be listened if boticord token is null")
 
         websockets.listen { block(it) }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    public suspend fun autopost(
+        botId: Long,
+        memberCount: Int?,
+        shardCount: Int? = null,
+        guildCount: Int? = null
+    ) {
+        GlobalScope.launch {
+            update(botId, memberCount, shardCount, guildCount)
+            delay(10_000L)
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    public suspend fun autopost(
+        scope: CoroutineScope = GlobalScope,
+        botId: Long,
+        memberCount: Int?,
+        shardCount: Int? = null,
+        guildCount: Int? = null
+    ) {
+        scope.launch {
+            while (isActive) {
+                update(botId, memberCount, shardCount, guildCount)
+                delay(10_000L)
+            }
+        }
     }
 }
 
