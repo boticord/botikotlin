@@ -108,6 +108,37 @@ public class BotiCordClient(
 
         websockets.listen { block(it) }
     }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    public suspend fun autopost(
+        botId: Long,
+        memberCount: Int?,
+        shardCount: Int? = null,
+        guildCount: Int? = null
+    ) {
+        GlobalScope.launch {
+            while (isActive) {
+                update(botId, memberCount, shardCount, guildCount)
+                delay(10_000L)
+            }
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    public suspend fun autopost(
+        scope: CoroutineScope = GlobalScope,
+        botId: Long,
+        memberCount: Int?,
+        shardCount: Int? = null,
+        guildCount: Int? = null
+    ) {
+        scope.launch {
+            while (isActive) {
+                update(botId, memberCount, shardCount, guildCount)
+                delay(10_000L)
+            }
+        }
+    }
 }
 
 public suspend fun <T> boticord(
