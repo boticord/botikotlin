@@ -58,10 +58,6 @@ public class BotiCordClient(
         return decode<BotProfile>(response.bodyAsText())
     }
 
-    public fun setup(token: String) {
-        this.boticordToken = token
-    }
-
     private suspend fun fetchUser(id: Long): UserProfile {
         val response = http.request(UserRoute.FETCH_USER) {
             params("id" to id.toString())
