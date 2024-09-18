@@ -98,7 +98,7 @@ public class BotiCordClient(
         IllegalArgumentException::class,
         SerializationException::class
     )
-    private inline fun <reified T> decode(data: String) =
+    private inline fun <reified T> decode(data: String): T =
         json.decodeFromString<T>(parseResultFromString(data))
 
     @Throws(IllegalStateException::class)
@@ -109,6 +109,15 @@ public class BotiCordClient(
         websockets.listen { block(it) }
     }
 }
+
+public suspend fun <T> boticord(
+    block: suspend BotiCordClient.() -> T
+): T = BotiCordClient(null).block()
+
+public suspend fun <T> boticord(
+    token: String,
+    block: suspend BotiCordClient.() -> T
+): T = BotiCordClient(token).block()
 
 @OptIn(DelicateCoroutinesApi::class)
 public fun <T> boticord(
@@ -134,3 +143,6 @@ public fun <T> boticordBlocking(
 
 public fun boticord(token: String): BotiCordClient =
     BotiCordClient(token)
+
+public fun boticord(): BotiCordClient =
+    BotiCordClient(null)
