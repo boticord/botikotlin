@@ -13,9 +13,11 @@ import kotlinx.serialization.json.*
 import top.boticord.http.exceptions.BoticordException
 import top.boticord.http.exceptions.HttpException
 import top.boticord.models.ErrorDetail
+import kotlin.time.Duration.Companion.seconds
 
 internal class HttpManager(private val boticordToken: String?) {
     companion object {
+        private const val RETRY_AFTER: Int = 25
         private const val INTERVAL = 30_000L
         private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/115.0.0.0 (Edition developer)"
     }
@@ -24,10 +26,7 @@ internal class HttpManager(private val boticordToken: String?) {
         install(ContentNegotiation) {
             json()
         }
-        install(WebSockets) {
-            pingInterval = INTERVAL
-        }
-        install(HttpTimeout)
+        install(WebSockets) { pingInterval = INTERVAL }
     }
 
     private fun format(
@@ -43,42 +42,47 @@ internal class HttpManager(private val boticordToken: String?) {
         headers: HeadersBuilder.() -> Unit = {},
         body: Body.() -> Unit = {}
     ): HttpResponse {
-        val builtBody = Body().apply(body)
+        return RateLimiter.ratelimitedRequest {
+            val builtBody = Body().apply(body)
 
-        val url = if (builtBody.parameters.isNotEmpty()) {
-            format(route.url, builtBody.parameters)
-        } else {
-            route.url
-        }
-
-        val response = client.request(url) {
-            this.userAgent(USER_AGENT)
-            this.contentType(ContentType.Application.Json)
-
-            if (!boticordToken.isNullOrEmpty()) {
-                header("Authorization", boticordToken)
+            val url = if (builtBody.parameters.isNotEmpty()) {
+                format(route.url, builtBody.parameters)
+            } else {
+                route.url
             }
 
-            this.method = route.method
-            this.headers(headers)
+            val response = client.request(url) {
+                this.userAgent(USER_AGENT)
+                this.contentType(ContentType.Application.Json)
 
-            val data = builtBody.asStringifiedJson()
-            if (!data.isNullOrEmpty()) setBody(data)
+                if (!boticordToken.isNullOrEmpty()) {
+                    header("Authorization", boticordToken)
+                }
+
+                this.method = route.method
+                this.headers(headers)
+
+                val data = builtBody.asStringifiedJson()
+                if (!data.isNullOrEmpty()) setBody(data)
+            }
+
+            response.contentType()?.let {
+                if (!it.match(ContentType.Application.Json)) {
+                    throw HttpException("Boticord respond with invalid content type (${response.contentType()})")
+                }
+            }
+
+            val jsonBody = Json.decodeFromString<JsonObject>(response.bodyAsText())
+            if (jsonBody.containsKey("errors"))
+                throw BoticordException(
+                    "Boticord respond with error(s):\n" +
+                            parseApiErrors(jsonBody["errors"]!!.jsonArray).joinToString("\n") {
+                                "Boticord Message: ${it.code} - ${it.message}"
+                            }
+                )
+
+            return@ratelimitedRequest response
         }
-
-        if (response.contentType() != ContentType.Application.Json)
-            throw HttpException("Boticord respond with invalid content type (${response.contentType()})")
-
-        val jsonBody = Json.decodeFromString<JsonObject>(response.bodyAsText())
-        if (jsonBody.containsKey("errors"))
-            throw BoticordException(
-                "Boticord respond with error(s):\n" +
-                        parseApiErrors(jsonBody["errors"]!!.jsonArray).joinToString("\n") {
-                            "Boticord Message: ${it.code} - ${it.message}"
-                        }
-            )
-
-        return response
     }
 
     internal suspend fun websocket(
