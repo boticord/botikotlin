@@ -109,24 +109,15 @@ public class BotiCordClient(
         websockets.listen { block(it) }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     public suspend fun autopost(
         botId: Long,
         memberCount: Int?,
         shardCount: Int? = null,
         guildCount: Int? = null
-    ) {
-        GlobalScope.launch {
-            while (isActive) {
-                update(botId, memberCount, shardCount, guildCount)
-                delay(10_000L)
-            }
-        }
-    }
+    ): Unit = autopost(scope = CoroutineScope(Dispatchers.Default), botId, memberCount, shardCount, guildCount)
 
-    @OptIn(DelicateCoroutinesApi::class)
     public suspend fun autopost(
-        scope: CoroutineScope = GlobalScope,
+        scope: CoroutineScope,
         botId: Long,
         memberCount: Int?,
         shardCount: Int? = null,
