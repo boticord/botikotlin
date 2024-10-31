@@ -107,24 +107,32 @@ public class BotiCordClient(
 
     public suspend fun autopost(
         botId: Long,
-        memberCount: Int?,
-        shardCount: Int? = null,
-        guildCount: Int? = null
-    ): Unit = autopost(scope = CoroutineScope(Dispatchers.Default), botId, memberCount, shardCount, guildCount)
+        body: AutopostBody.() -> AutopostBody
+    ): Unit = autopost(CoroutineScope(Dispatchers.Default), botId, body)
 
     public suspend fun autopost(
         scope: CoroutineScope,
         botId: Long,
-        memberCount: Int?,
-        shardCount: Int? = null,
-        guildCount: Int? = null
+        body: AutopostBody.() -> AutopostBody
     ) {
+        val builtBody = body(AutopostBody)
+
         scope.launch {
             while (isActive) {
-                update(botId, memberCount, shardCount, guildCount)
+                update(botId, builtBody.memberCount, builtBody.shardCount, builtBody.guildCount)
                 delay(10_000L)
             }
         }
+    }
+
+    public object AutopostBody {
+        internal var memberCount: Int? = null
+        internal var shardCount: Int? = null
+        internal var guildCount: Int? = null
+
+        public fun members(count: Int): AutopostBody = apply { memberCount = count }
+        public fun shards(count: Int): AutopostBody = apply { shardCount = count }
+        public fun guilds(count: Int): AutopostBody = apply { guildCount = count }
     }
 }
 
