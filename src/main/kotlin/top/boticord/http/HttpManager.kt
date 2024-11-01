@@ -24,9 +24,6 @@ internal class HttpManager(private val boticordToken: String?) {
         install(ContentNegotiation) {
             json()
         }
-        install(WebSockets) {
-            pingInterval = INTERVAL
-        }
         install(HttpTimeout)
     }
 

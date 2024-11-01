@@ -118,7 +118,7 @@ public class BotiCordClient(
         scope.launch {
             while (isActive) {
                 val builtBody = body(AutopostBody)
-                
+
                 update(botId, builtBody.memberCount, builtBody.shardCount, builtBody.guildCount)
                 delay(10_000L)
             }
