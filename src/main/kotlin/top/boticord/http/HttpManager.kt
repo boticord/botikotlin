@@ -24,6 +24,7 @@ internal class HttpManager(private val boticordToken: String?) {
         install(ContentNegotiation) {
             json()
         }
+        install(WebSockets)
         install(HttpTimeout)
     }
 
